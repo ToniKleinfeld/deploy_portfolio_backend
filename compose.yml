@@ -1,0 +1,211 @@
+version: "3.9"
+
+x-default-env: &default-env
+  DJANGO_DEBUG: ${DJANGO_DEBUG}
+  DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+
+x-common-labels: &common-labels
+  com.github.nginx-proxy.tls-port: "443"
+
+networks:
+  proxy:
+  backend:
+
+volumes:
+  pgdata:
+  redisdata:
+  acme:
+  vhost:
+  html:
+  dhparam:
+  join_media:
+  join_static:
+  coderr_media:
+  coderr_static:
+  videoflix_media:
+  videoflix_static:
+
+services:
+  # ---- Reverse Proxy + Let's Encrypt ----
+  reverse-proxy:
+    image: nginxproxy/nginx-proxy:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - acme:/etc/acme.sh
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - dhparam:/etc/nginx/dhparam
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx/custom.conf:/etc/nginx/conf.d/custom.conf:ro
+    networks: [proxy]
+
+  acme-companion:
+    image: nginxproxy/acme-companion
+    restart: always
+    environment:
+      DEFAULT_EMAIL: ${EMAIL_ADMIN}
+    volumes:
+      - acme:/etc/acme.sh
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - dhparam:/etc/nginx/dhparam
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [proxy]
+    depends_on: [reverse-proxy]
+
+  # ---- PostgreSQL ----
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./initdb/00-create-dbs-and-users.sql.tpl:/docker-entrypoint-initdb.d/00-create-dbs-and-users.sql.tpl:ro
+      - ./initdb/render-init.sh:/docker-entrypoint-initdb.d/00-render-init.sh:ro
+    networks: [backend]
+    deploy:
+      resources:
+        limits:
+          cpus: ${LIMIT_PG_CPUS}
+          memory: ${LIMIT_PG_MEM}
+
+  # ---- Redis (eine Instanz) ----
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes" ]
+    restart: always
+    volumes:
+      - redisdata:/data
+    networks: [backend]
+    deploy:
+      resources:
+        limits:
+          cpus: ${LIMIT_REDIS_CPUS}
+          memory: ${LIMIT_REDIS_MEM}
+
+  # ---- JOIN (Django/DRF) ----
+  join:
+    build:
+      context: ../join
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      <<: *default-env
+      DATABASE_URL: postgres://${JOIN_DB_USER}:${JOIN_DB_PASSWORD}@postgres:5432/${JOIN_DB}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS_JOIN}
+      # optional: CORS, CSRF
+    volumes:
+      - join_media:/app/media
+      - join_static:/app/static
+    depends_on:
+      - postgres
+    networks: [backend, proxy]
+    labels:
+      - "com.github.nginx-proxy.enable=true"
+      - "traefik.enable=false"
+      - "nginx-proxy=true"
+      - "virtual.host=${JOIN_HOST}"
+      - "VIRTUAL_HOST=${JOIN_HOST}"
+      - "VIRTUAL_PORT=8000"
+      - "LETSENCRYPT_HOST=${JOIN_HOST}"
+    deploy:
+      resources:
+        limits:
+          cpus: ${LIMIT_JOIN_CPUS}
+          memory: ${LIMIT_JOIN_MEM}
+
+  # ---- CODERR (Django/DRF) ----
+  coderr:
+    build:
+      context: ../coderr
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      <<: *default-env
+      DATABASE_URL: postgres://${CODERR_DB_USER}:${CODERR_DB_PASSWORD}@postgres:5432/${CODERR_DB}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS_CODERR}
+    volumes:
+      - coderr_media:/app/media
+      - coderr_static:/app/static
+    depends_on:
+      - postgres
+    networks: [backend, proxy]
+    labels:
+      - "com.github.nginx-proxy.enable=true"
+      - "VIRTUAL_HOST=${CODERR_HOST}"
+      - "VIRTUAL_PORT=8000"
+      - "LETSENCRYPT_HOST=${CODERR_HOST}"
+    deploy:
+      resources:
+        limits:
+          cpus: ${LIMIT_CODERR_CPUS}
+          memory: ${LIMIT_CODERR_MEM}
+
+  # ---- VIDEOFLIX API (Django/DRF) ----
+  videoflix:
+    build:
+      context: ../videoflix
+      dockerfile: Dockerfile
+      args:
+        FFMPEG_THREADS: ${FFMPEG_THREADS}
+    restart: always
+    environment:
+      <<: *default-env
+      DATABASE_URL: postgres://${VIDEOFLIX_DB_USER}:${VIDEOFLIX_DB_PASSWORD}@postgres:5432/${VIDEOFLIX_DB}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/${REDIS_DB_VIDEOFLIX}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS_VIDEOFLIX}
+      FFMPEG_THREADS: ${FFMPEG_THREADS}
+    volumes:
+      - videoflix_media:/app/media
+      - videoflix_static:/app/static
+    depends_on:
+      - postgres
+      - redis
+    networks: [backend, proxy]
+    labels:
+      - "com.github.nginx-proxy.enable=true"
+      - "VIRTUAL_HOST=${VIDEOFLIX_HOST}"
+      - "VIRTUAL_PORT=8000"
+      - "LETSENCRYPT_HOST=${VIDEOFLIX_HOST}"
+    deploy:
+      resources:
+        limits:
+          cpus: ${LIMIT_VIDEO_API_CPUS}
+          memory: ${LIMIT_VIDEO_API_MEM}
+
+  # ---- VIDEOFLIX Worker (django_rq) ----
+  videoflix_worker:
+    build:
+      context: ../videoflix
+      dockerfile: Dockerfile
+      args:
+        FFMPEG_THREADS: ${FFMPEG_THREADS}
+    restart: always
+    environment:
+      <<: *default-env
+      DATABASE_URL: postgres://${VIDEOFLIX_DB_USER}:${VIDEOFLIX_DB_PASSWORD}@postgres:5432/${VIDEOFLIX_DB}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/${REDIS_DB_VIDEOFLIX}
+      FFMPEG_THREADS: ${FFMPEG_THREADS}
+    command: ["/bin/sh", "-c", "./worker.sh"]
+    volumes:
+      - videoflix_media:/app/media
+    depends_on:
+      - redis
+      - postgres
+    networks: [backend]
+    deploy:
+      resources:
+        limits:
+          cpus: ${LIMIT_VIDEO_WORKER_CPUS}
+          memory: ${LIMIT_VIDEO_WORKER_MEM}
