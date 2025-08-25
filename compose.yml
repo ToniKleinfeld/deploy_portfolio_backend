@@ -97,8 +97,8 @@ services:
   # ---- JOIN (Django/DRF) ----
   join:
     build:
-      context: ../join
-      dockerfile: Dockerfile
+      context: ./Backend-Join
+      dockerfile: Dockerfile.deploy
     restart: always
     environment:
       <<: *default-env
@@ -113,9 +113,6 @@ services:
     networks: [backend, proxy]
     labels:
       - "com.github.nginx-proxy.enable=true"
-      - "traefik.enable=false"
-      - "nginx-proxy=true"
-      - "virtual.host=${JOIN_HOST}"
       - "VIRTUAL_HOST=${JOIN_HOST}"
       - "VIRTUAL_PORT=8000"
       - "LETSENCRYPT_HOST=${JOIN_HOST}"
@@ -128,8 +125,8 @@ services:
   # ---- CODERR (Django/DRF) ----
   coderr:
     build:
-      context: ../coderr
-      dockerfile: Dockerfile
+      context: ./backend.Coderr
+      dockerfile: Dockerfile.deploy
     restart: always
     environment:
       <<: *default-env
@@ -155,8 +152,8 @@ services:
   # ---- VIDEOFLIX API (Django/DRF) ----
   videoflix:
     build:
-      context: ../videoflix
-      dockerfile: Dockerfile
+      context: ./Videoflix
+      dockerfile: Dockerfile.deploy
       args:
         FFMPEG_THREADS: ${FFMPEG_THREADS}
     restart: always
