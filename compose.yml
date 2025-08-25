@@ -116,6 +116,7 @@ services:
       - "VIRTUAL_HOST=${JOIN_HOST}"
       - "VIRTUAL_PORT=8000"
       - "LETSENCRYPT_HOST=${JOIN_HOST}"
+      - "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}"
     deploy:
       resources:
         limits:
@@ -143,6 +144,7 @@ services:
       - "VIRTUAL_HOST=${CODERR_HOST}"
       - "VIRTUAL_PORT=8000"
       - "LETSENCRYPT_HOST=${CODERR_HOST}"
+      - "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}"
     deploy:
       resources:
         limits:
@@ -175,6 +177,7 @@ services:
       - "VIRTUAL_HOST=${VIDEOFLIX_HOST}"
       - "VIRTUAL_PORT=8000"
       - "LETSENCRYPT_HOST=${VIDEOFLIX_HOST}"
+      - "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}"
     deploy:
       resources:
         limits:
