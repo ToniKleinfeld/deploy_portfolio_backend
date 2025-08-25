@@ -1,1 +1,15 @@
 .env
+
+Backend-Join/*
+Videoflix/*
+backend.Coderr/*
+
+!Backend-Join/Dockerfile.deploy
+!Backend-Join/entrypoint.deploy.sh
+
+!Videoflix/Dockerfile.deploy
+!Videoflix/entrypoint.deploy.sh
+!Videoflix/worker.deploy.sh
+
+!backend.Coderr/Dockerfile.deploy
+!backend.Coderr/entrypoint.deploy.sh
