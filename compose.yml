@@ -1,8 +1,8 @@
 version: "3.9"
 
 x-default-env: &default-env
-  DJANGO_DEBUG: ${DJANGO_DEBUG}
-  DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+  DJANGO_DEBUG: ${DEBUG}
+  DJANGO_SECRET_KEY: ${SECRET_KEY}
 
 x-common-labels: &common-labels
   com.github.nginx-proxy.tls-port: "443"
@@ -116,7 +116,7 @@ services:
       - "VIRTUAL_HOST=${JOIN_HOST}"
       - "VIRTUAL_PORT=8000"
       - "LETSENCRYPT_HOST=${JOIN_HOST}"
-      - "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}"
+      - "LETSENCRYPT_EMAIL=${EMAIL_ADMIN}"
     deploy:
       resources:
         limits:
@@ -144,7 +144,7 @@ services:
       - "VIRTUAL_HOST=${CODERR_HOST}"
       - "VIRTUAL_PORT=8000"
       - "LETSENCRYPT_HOST=${CODERR_HOST}"
-      - "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}"
+      - "LETSENCRYPT_EMAIL=${EMAIL_ADMIN}"
     deploy:
       resources:
         limits:
@@ -162,7 +162,7 @@ services:
     environment:
       <<: *default-env
       DATABASE_URL: postgres://${VIDEOFLIX_DB_USER}:${VIDEOFLIX_DB_PASSWORD}@postgres:5432/${VIDEOFLIX_DB}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/${REDIS_DB_VIDEOFLIX}
+      REDIS_URL: redis://redis:6379/${REDIS_DB}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS_VIDEOFLIX}
       FFMPEG_THREADS: ${FFMPEG_THREADS}
     volumes:
@@ -177,7 +177,7 @@ services:
       - "VIRTUAL_HOST=${VIDEOFLIX_HOST}"
       - "VIRTUAL_PORT=8000"
       - "LETSENCRYPT_HOST=${VIDEOFLIX_HOST}"
-      - "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}"
+      - "LETSENCRYPT_EMAIL=${EMAIL_ADMIN}"
     deploy:
       resources:
         limits:
