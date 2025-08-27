@@ -1,5 +1,3 @@
-version: "3.9"
-
 x-default-env: &default-env
   DJANGO_DEBUG: ${DEBUG}
   DJANGO_SECRET_KEY: ${SECRET_KEY}
