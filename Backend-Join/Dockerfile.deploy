@@ -15,8 +15,7 @@ COPY . /app
 RUN useradd -ms /bin/bash appuser && chown -R appuser:appuser /app
 USER appuser
 
-COPY entrypoint.deploy.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+COPY --chmod=0755 entrypoint.deploy.sh /app/entrypoint.sh
 
 EXPOSE 8000
 CMD ["/app/entrypoint.sh"]
