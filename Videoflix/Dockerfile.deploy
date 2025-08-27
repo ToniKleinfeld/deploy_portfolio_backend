@@ -4,7 +4,7 @@ ARG FFMPEG_THREADS=2
 ENV FFMPEG_THREADS=${FFMPEG_THREADS}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg build-essential libpq-dev \ postgresql-client \
+    ffmpeg build-essential libpq-dev postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -17,7 +17,8 @@ RUN useradd -ms /bin/bash appuser && chown -R appuser:appuser /app
 USER appuser
 
 COPY entrypoint.deploy.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+COPY worker.deploy.sh /app/worker.sh
+RUN chmod +x /app/entrypoint.sh /app/worker.sh
 
 EXPOSE 8000
 CMD ["/app/entrypoint.sh"]

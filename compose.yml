@@ -102,6 +102,8 @@ services:
     restart: always
     environment:
       <<: *default-env
+      DB_HOST: ${DB_HOST} 
+      DB_PORT: ${DB_PORT}
       DATABASE_URL: postgres://${JOIN_DB_USER}:${JOIN_DB_PASSWORD}@postgres:5432/${JOIN_DB}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS_JOIN}
       # optional: CORS, CSRF
@@ -131,6 +133,8 @@ services:
     restart: always
     environment:
       <<: *default-env
+      DB_HOST: ${DB_HOST} 
+      DB_PORT: ${DB_PORT}
       DATABASE_URL: postgres://${CODERR_DB_USER}:${CODERR_DB_PASSWORD}@postgres:5432/${CODERR_DB}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS_CODERR}
     volumes:
@@ -161,6 +165,8 @@ services:
     restart: always
     environment:
       <<: *default-env
+      DB_HOST: ${DB_HOST} 
+      DB_PORT: ${DB_PORT}
       DATABASE_URL: postgres://${VIDEOFLIX_DB_USER}:${VIDEOFLIX_DB_PASSWORD}@postgres:5432/${VIDEOFLIX_DB}
       REDIS_URL: redis://redis:6379/${REDIS_DB}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS_VIDEOFLIX}
@@ -187,17 +193,19 @@ services:
   # ---- VIDEOFLIX Worker (django_rq) ----
   videoflix_worker:
     build:
-      context: ../videoflix
-      dockerfile: Dockerfile
+      context: ./Videoflix
+      dockerfile: Dockerfile.deploy
       args:
         FFMPEG_THREADS: ${FFMPEG_THREADS}
     restart: always
     environment:
       <<: *default-env
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
       DATABASE_URL: postgres://${VIDEOFLIX_DB_USER}:${VIDEOFLIX_DB_PASSWORD}@postgres:5432/${VIDEOFLIX_DB}
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/${REDIS_DB_VIDEOFLIX}
+      REDIS_URL: redis://redis:6379/${REDIS_DB}
       FFMPEG_THREADS: ${FFMPEG_THREADS}
-    command: ["/bin/sh", "-c", "./worker.sh"]
+    command: ["/app/worker.sh"]
     volumes:
       - videoflix_media:/app/media
     depends_on:
