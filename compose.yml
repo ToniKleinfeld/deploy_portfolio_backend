@@ -95,8 +95,8 @@ services:
   # ---- JOIN (Django/DRF) ----
   join:
     build:
-      context: ./Backend-Join
-      dockerfile: Dockerfile.deploy
+      context: ../Backend-Join
+      dockerfile: ./Backend-Join/Dockerfile.deploy
     restart: always
     environment:
       <<: *default-env
@@ -126,8 +126,8 @@ services:
   # ---- CODERR (Django/DRF) ----
   coderr:
     build:
-      context: ./backend.Coderr
-      dockerfile: Dockerfile.deploy
+      context: ../backend.Coderr
+      dockerfile: ./backend.Coderr/Dockerfile.deploy
     restart: always
     environment:
       <<: *default-env
@@ -156,8 +156,8 @@ services:
   # ---- VIDEOFLIX API (Django/DRF) ----
   videoflix:
     build:
-      context: ./Videoflix
-      dockerfile: Dockerfile.deploy
+      context: ../Videoflix
+      dockerfile: ./Videoflix/Dockerfile.deploy
       args:
         FFMPEG_THREADS: ${FFMPEG_THREADS}
     restart: always
@@ -191,8 +191,8 @@ services:
   # ---- VIDEOFLIX Worker (django_rq) ----
   videoflix_worker:
     build:
-      context: ./Videoflix
-      dockerfile: Dockerfile.deploy
+      context: ../Videoflix
+      dockerfile: ./Videoflix/Dockerfile.deploy
       args:
         FFMPEG_THREADS: ${FFMPEG_THREADS}
     restart: always
