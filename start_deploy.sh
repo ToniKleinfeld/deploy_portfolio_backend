@@ -16,4 +16,6 @@ for src in "${!MAP[@]}"; do
 done
 
 cd "$BASE_DIR"
-docker compose up -d --build --no-cache
+docker compose build --no-cache
+docker compose up -d
+
