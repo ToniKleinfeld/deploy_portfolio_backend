@@ -96,7 +96,7 @@ services:
   join:
     build:
       context: ../Backend-Join
-      dockerfile: ./Backend-Join/Dockerfile.deploy
+      dockerfile: Dockerfile.deploy
     restart: always
     environment:
       <<: *default-env
@@ -127,7 +127,7 @@ services:
   coderr:
     build:
       context: ../backend.Coderr
-      dockerfile: ./backend.Coderr/Dockerfile.deploy
+      dockerfile: Dockerfile.deploy
     restart: always
     environment:
       <<: *default-env
@@ -157,7 +157,7 @@ services:
   videoflix:
     build:
       context: ../Videoflix
-      dockerfile: ./Videoflix/Dockerfile.deploy
+      dockerfile: Dockerfile.deploy
       args:
         FFMPEG_THREADS: ${FFMPEG_THREADS}
     restart: always
@@ -192,7 +192,7 @@ services:
   videoflix_worker:
     build:
       context: ../Videoflix
-      dockerfile: ./Videoflix/Dockerfile.deploy
+      dockerfile: Dockerfile.deploy
       args:
         FFMPEG_THREADS: ${FFMPEG_THREADS}
     restart: always

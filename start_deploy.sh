@@ -12,6 +12,7 @@ for src in "${!MAP[@]}"; do
   mkdir -p "$target"
   [ -f "${src_base}/entrypoint.deploy.sh" ] && cp -f "${src_base}/entrypoint.deploy.sh" "${target}/entrypoint.deploy.sh" && chmod 0755 "${target}/entrypoint.deploy.sh"
   [ -f "${src_base}/worker.deploy.sh" ] && cp -f "${src_base}/worker.deploy.sh" "${target}/worker.deploy.sh" && chmod 0755 "${target}/worker.deploy.sh"
+  [ -f "${src_base}/Dockerfile.deploy" ] && cp -f "${src_base}/Dockerfile.deploy" "${target}/Dockerfile.deploy"
 done
 
 cd "$BASE_DIR"
