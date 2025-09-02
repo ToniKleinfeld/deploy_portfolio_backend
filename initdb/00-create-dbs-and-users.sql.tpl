@@ -4,10 +4,6 @@ BEGIN
   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${JOIN_DB_USER}') THEN
     EXECUTE format('CREATE ROLE %I WITH LOGIN PASSWORD %L', '${JOIN_DB_USER}', '${JOIN_DB_PASSWORD}');
   END IF;
-
-  IF NOT EXISTS (SELECT FROM pg_database WHERE datname = '${JOIN_DB}') THEN
-    EXECUTE format('CREATE DATABASE %I OWNER %I', '${JOIN_DB}', '${JOIN_DB_USER}');
-  END IF;
 END
 $$;
 
@@ -16,10 +12,6 @@ $$
 BEGIN
   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${CODERR_DB_USER}') THEN
     EXECUTE format('CREATE ROLE %I WITH LOGIN PASSWORD %L', '${CODERR_DB_USER}', '${CODERR_DB_PASSWORD}');
-  END IF;
-
-  IF NOT EXISTS (SELECT FROM pg_database WHERE datname = '${CODERR_DB}') THEN
-    EXECUTE format('CREATE DATABASE %I OWNER %I', '${CODERR_DB}', '${CODERR_DB_USER}');
   END IF;
 END
 $$;
@@ -30,9 +22,18 @@ BEGIN
   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${VIDEOFLIX_DB_USER}') THEN
     EXECUTE format('CREATE ROLE %I WITH LOGIN PASSWORD %L', '${VIDEOFLIX_DB_USER}', '${VIDEOFLIX_DB_PASSWORD}');
   END IF;
-
-  IF NOT EXISTS (SELECT FROM pg_database WHERE datname = '${VIDEOFLIX_DB}') THEN
-    EXECUTE format('CREATE DATABASE %I OWNER %I', '${VIDEOFLIX_DB}', '${VIDEOFLIX_DB_USER}');
-  END IF;
 END
 $$;
+
+-- create databases if not exists (psql will execute the output with \gexec)
+SELECT format('CREATE DATABASE %I OWNER %I;', '${JOIN_DB}', '${JOIN_DB_USER}')
+  WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${JOIN_DB}');
+\gexec
+
+SELECT format('CREATE DATABASE %I OWNER %I;', '${CODERR_DB}', '${CODERR_DB_USER}')
+  WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${CODERR_DB}');
+\gexec
+
+SELECT format('CREATE DATABASE %I OWNER %I;', '${VIDEOFLIX_DB}', '${VIDEOFLIX_DB_USER}')
+  WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${VIDEOFLIX_DB}');
+\gexec
