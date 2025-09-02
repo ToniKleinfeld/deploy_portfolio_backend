@@ -13,3 +13,5 @@ backend.Coderr/*
 
 !backend.Coderr/Dockerfile.deploy
 !backend.Coderr/entrypoint.deploy.sh
+
+00-create-dbs-and-users.sql
