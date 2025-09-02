@@ -36,4 +36,4 @@ else:
     print(f"Superuser '{username}' already exists.")
 EOF
 
-exec gunicorn config.wsgi:application --workers 2 --threads 2 --bind 0.0.0.0:8000 --timeout 300
+exec gunicorn --chdir /app config.wsgi:application --workers 2 --threads 2 --bind 0.0.0.0:8000 --timeout 300
