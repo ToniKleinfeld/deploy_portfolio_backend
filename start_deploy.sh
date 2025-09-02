@@ -4,20 +4,66 @@ set -euo pipefail
 BASE_DIR="$(dirname "$(realpath "$0")")" 
 TARGET_ROOT="${TARGET_ROOT:-/srv}"
 
-# --- ensure initdb files have correct EOL/perms for container ---
+# ensure required tools (envsubst or python3) are present; install on Ubuntu if missing
+SUDO=""
+if [ "$(id -u)" -ne 0 ]; then
+  if command -v sudo >/dev/null 2>&1; then
+    SUDO="sudo"
+  else
+    echo "[start_deploy] not running as root and sudo not available — cannot install packages" >&2
+  fi
+fi
+
+check_and_install() {
+  cmd="$1"
+  pkg="$2"
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "[start_deploy] $cmd not found — attempting to install package: $pkg"
+    $SUDO apt-get update -qq
+    DEBIAN_FRONTEND=noninteractive $SUDO apt-get install -y "$pkg"
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+      echo "[start_deploy] failed to install $pkg; please install $cmd manually" >&2
+      exit 1
+    fi
+  fi
+}
+
+# envsubst is provided by gettext-base on Ubuntu
+check_and_install envsubst gettext-base
+check_and_install python3 python3
+
 INITDB_DIR="$BASE_DIR/initdb"
-if [ -d "$INITDB_DIR" ]; then
-  echo "[start_deploy] fixing initdb files in $INITDB_DIR"
-  # convert CRLF -> LF
+TPL="$INITDB_DIR/00-create-dbs-and-users.sql.tpl"
+OUT="$INITDB_DIR/00-create-dbs-and-users.sql"
+
+if [ -f "$TPL" ]; then
+  echo "[start_deploy] rendering $TPL -> $OUT"
+  # load .env for values
+  if [ -f "$BASE_DIR/.env" ]; then
+    set -o allexport; . "$BASE_DIR/.env"; set +o allexport
+  fi
+
+  # ensure LF
   sed -i 's/\r$//' "$INITDB_DIR"/* || true
-  # make render script executable
-  chmod 0755 "$INITDB_DIR/render-init.sh" || true
-  # if running as root, chown to postgres uid (999) so container can write
+
+  if command -v envsubst >/dev/null 2>&1; then
+    envsubst < "$TPL" > "$OUT"
+  elif command -v python3 >/dev/null 2>&1 && [ -f "$INITDB_DIR/render_tpl.py" ]; then
+    python3 "$INITDB_DIR/render_tpl.py" "$TPL" "$OUT"
+  else
+    echo "[start_deploy] ERROR: no renderer found (envsubst or python3+render_tpl.py required)" >&2
+    exit 1
+  fi
+
+  chmod 0644 "$OUT" || true
   if [ "$(id -u)" -eq 0 ]; then
     chown -R 999:999 "$INITDB_DIR" || true
   else
-    echo "[start_deploy] not root: ensure $INITDB_DIR is writable by container user (suggestion: sudo chown -R 999:999 $INITDB_DIR)"
+    echo "[start_deploy] warning: run as root to chown initdb to UID 999 (postgres user) or ensure mount writable."
   fi
+
+  echo "[start_deploy] rendered file preview:"
+  sed -n '1,120p' "$OUT" || true
 fi
 
 declare -A MAP=( ["Backend-Join"]="Backend-Join" ["backend.Coderr"]="backend.Coderr" ["Videoflix"]="Videoflix" )
