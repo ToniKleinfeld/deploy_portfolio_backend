@@ -25,7 +25,7 @@ networks:
   backend:
 
 volumes:
-  pgdata:
+  postgres_data:
   redisdata:
   acme:
   vhost:
@@ -92,7 +92,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
       - ./initdb:/docker-entrypoint-initdb.d
     networks: [backend]
     deploy:
