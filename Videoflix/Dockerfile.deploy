@@ -9,8 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt \
-    && pip install --no-cache-dir gunicorn psycopg2-binary django-rq rq
+RUN pip install --upgrade pip && \ 
+    pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir gunicorn django-rq rq
 
 COPY . /app
 RUN useradd -ms /bin/bash appuser && chown -R appuser:appuser /app
