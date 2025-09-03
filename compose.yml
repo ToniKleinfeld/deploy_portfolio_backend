@@ -60,6 +60,7 @@ services:
     restart: always
     environment:
       DEFAULT_EMAIL: ${EMAIL_ADMIN}
+      NGINX_PROXY_CONTAINER: reverse-proxy
     volumes:
       - acme:/etc/acme.sh
       - vhost:/etc/nginx/vhost.d
