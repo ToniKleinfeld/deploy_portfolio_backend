@@ -22,7 +22,9 @@ x-common-labels: &common-labels
 
 networks:
   proxy:
+    driver: bridge
   backend:
+    driver: bridge
 
 volumes:
   postgres_data:
@@ -50,6 +52,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      TRUST_DOWNSTREAM_PROXY: "false"
     volumes:
       - acme:/etc/acme.sh
       - certs:/etc/nginx/certs
@@ -63,9 +67,16 @@ services:
   acme-companion:
     image: nginxproxy/acme-companion
     restart: always
+    depends_on: [reverse-proxy]
     environment:
       DEFAULT_EMAIL: ${EMAIL_ADMIN}
       NGINX_PROXY_CONTAINER: reverse-proxy
+      NGINX_DOCKER_GEN_CONTAINER: reverse-proxy
+    healthcheck:
+      test: ["CMD-SHELL", "nginx -t >/dev/null 2>&1 || exit 1; curl -fsS http://localhost:80/ >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     volumes:
       - acme:/etc/acme.sh
       - certs:/etc/nginx/certs
@@ -74,7 +85,6 @@ services:
       - dhparam:/etc/nginx/dhparam
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks: [proxy]
-    depends_on: [reverse-proxy]
 
   # ---- PostgreSQL ----
   postgres:

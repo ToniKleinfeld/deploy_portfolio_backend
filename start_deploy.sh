@@ -79,4 +79,19 @@ done
 
 cd "$BASE_DIR"
 docker compose build --no-cache
+docker compose up -d reverse-proxy acme-companion
+
+# wait until reverse-proxy is healthy (max ~120s)
+for i in $(seq 1 24); do
+  cid=$(docker compose ps -q reverse-proxy 2>/dev/null || true)
+  [ -n "$cid" ] || { sleep 2; continue; }
+  status=$(docker inspect -f '{{.State.Health.Status}}' "$cid" 2>/dev/null || echo "none")
+  if [ "$status" = "healthy" ]; then
+    echo "reverse-proxy healthy"
+    break
+  fi
+  echo "waiting for reverse-proxy health... ($i/24)"
+  sleep 5
+done
+
 docker compose up -d
