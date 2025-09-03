@@ -12,8 +12,9 @@ RUN pip install --upgrade pip && \
     && pip install --no-cache-dir gunicorn psycopg2-binary
 
 COPY . /app
-
-RUN useradd -ms /bin/bash appuser && chown -R appuser:appuser /app
+RUN useradd -u 1000 -ms /bin/bash appuser \
+    && mkdir -p /app/static /app/media \
+    && chown -R appuser:appuser /app /app/static /app/media
 USER appuser
 
 COPY --chmod=0755 entrypoint.deploy.sh /app/entrypoint.sh
