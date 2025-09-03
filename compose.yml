@@ -31,6 +31,7 @@ volumes:
   vhost:
   html:
   dhparam:
+  certs:
   join_media:
   join_static:
   coderr_media:
@@ -51,6 +52,7 @@ services:
       - "443:443"
     volumes:
       - acme:/etc/acme.sh
+      - certs:/etc/nginx/certs
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - dhparam:/etc/nginx/dhparam
@@ -66,6 +68,7 @@ services:
       NGINX_PROXY_CONTAINER: reverse-proxy
     volumes:
       - acme:/etc/acme.sh
+      - certs:/etc/nginx/certs
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - dhparam:/etc/nginx/dhparam
