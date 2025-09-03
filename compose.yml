@@ -60,8 +60,13 @@ services:
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - dhparam:/etc/nginx/dhparam
-      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./nginx/custom.conf:/etc/nginx/conf.d/custom.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "nginx -t >/dev/null 2>&1 || exit 1; curl -fsS http://localhost:80/ >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks: [proxy]
 
   acme-companion:
@@ -72,11 +77,6 @@ services:
       DEFAULT_EMAIL: ${EMAIL_ADMIN}
       NGINX_PROXY_CONTAINER: reverse-proxy
       NGINX_DOCKER_GEN_CONTAINER: reverse-proxy
-    healthcheck:
-      test: ["CMD-SHELL", "nginx -t >/dev/null 2>&1 || exit 1; curl -fsS http://localhost:80/ >/dev/null 2>&1"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
     volumes:
       - acme:/etc/acme.sh
       - certs:/etc/nginx/certs
