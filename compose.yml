@@ -43,6 +43,9 @@ services:
   reverse-proxy:
     image: nginxproxy/nginx-proxy:alpine
     restart: always
+    labels:
+      com.github.nginx-proxy.nginx: "true"
+      com.github.nginx-proxy.docker-gen: "true"
     ports:
       - "80:80"
       - "443:443"
