@@ -61,6 +61,7 @@ services:
       - html:/usr/share/nginx/html
       - dhparam:/etc/nginx/dhparam
       - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./nginx/custom.conf:/etc/nginx/conf.d/custom.conf:ro
     healthcheck:
       test: ["CMD-SHELL", "nginx -t >/dev/null 2>&1 || exit 1; curl -fsS http://localhost:80/ >/dev/null 2>&1"]
