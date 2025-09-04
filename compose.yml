@@ -32,7 +32,6 @@ volumes:
   acme:
   vhost:
   html:
-  dhparam:
   certs:
   join_media:
   join_static:
@@ -44,7 +43,7 @@ volumes:
 services:
   # ---- Reverse Proxy + Let's Encrypt ----
   reverse-proxy:
-    image: nginxproxy/nginx-proxy:alpine
+    image: nginxproxy/nginx-proxy:1.8
     restart: always
     labels:
       com.github.nginx-proxy.nginx: "true"
@@ -55,13 +54,10 @@ services:
     environment:
       TRUST_DOWNSTREAM_PROXY: "false"
     volumes:
-      - acme:/etc/acme.sh
       - certs:/etc/nginx/certs
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
-      - dhparam:/etc/nginx/dhparam
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./nginx/custom.conf:/etc/nginx/conf.d/custom.conf:ro
     healthcheck:
       test: ["CMD-SHELL", "nginx -t >/dev/null 2>&1 || exit 1; curl -fsS http://localhost:80/ >/dev/null 2>&1"]
@@ -83,7 +79,7 @@ services:
       - certs:/etc/nginx/certs
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
-      - dhparam:/etc/nginx/dhparam
+      - /var/run/docker.sock:/tmp/docker.sock:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks: [proxy]
 
@@ -159,7 +155,7 @@ services:
     labels:
       - "com.github.nginx-proxy.enable=true"
       - "VIRTUAL_HOST=${JOIN_HOST}"
-      - "VIRTUAL_PORT=8000"
+      - "VIRTUAL_PORT=8001"
       - "LETSENCRYPT_HOST=${JOIN_HOST}"
       - "LETSENCRYPT_EMAIL=${EMAIL_ADMIN}"
     deploy:
@@ -194,7 +190,7 @@ services:
     labels:
       - "com.github.nginx-proxy.enable=true"
       - "VIRTUAL_HOST=${CODERR_HOST}"
-      - "VIRTUAL_PORT=8000"
+      - "VIRTUAL_PORT=8002"
       - "LETSENCRYPT_HOST=${CODERR_HOST}"
       - "LETSENCRYPT_EMAIL=${EMAIL_ADMIN}"
     deploy:
@@ -236,7 +232,7 @@ services:
     labels:
       - "com.github.nginx-proxy.enable=true"
       - "VIRTUAL_HOST=${VIDEOFLIX_HOST}"
-      - "VIRTUAL_PORT=8000"
+      - "VIRTUAL_PORT=8003"
       - "LETSENCRYPT_HOST=${VIDEOFLIX_HOST}"
       - "LETSENCRYPT_EMAIL=${EMAIL_ADMIN}"
     deploy:
