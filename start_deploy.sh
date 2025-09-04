@@ -79,10 +79,28 @@ done
 
 cd "$BASE_DIR"
 docker compose build --no-cache
+
+# Start services in order: first Postgres and Redis
+docker compose up -d postgres redis
+
+# Wait until Postgres is ready
+echo "Waiting for PostgreSQL to be ready..."
+until docker compose exec postgres pg_isready -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" >/dev/null 2>&1; do
+  echo "PostgreSQL is unavailable - sleeping"
+  sleep 2
+done
+echo "PostgreSQL is ready!"
+
+# Then start backend services
+docker compose up -d join coderr videoflix videoflix_worker
+
+sleep 10
+
+# Finally start reverse-proxy and acme-companion
 docker compose up -d reverse-proxy acme-companion
 
-# wait until reverse-proxy is healthy (max ~120s)
-MAX_TRIES=24
+# check reverse-proxy is healthy 
+MAX_TRIES=15
 for i in $(seq 1 $MAX_TRIES); do
   cid=$(docker compose ps -q reverse-proxy 2>/dev/null || true)
   [ -n "$cid" ] || { sleep 2; continue; }
@@ -99,5 +117,3 @@ if [ "$status" != "healthy" ]; then
   echo "reverse-proxy did not become healthy - showing recent logs:"
   docker compose logs --tail 200 reverse-proxy
 fi
-
-docker compose up -d

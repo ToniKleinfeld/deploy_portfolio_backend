@@ -45,6 +45,10 @@ services:
   reverse-proxy:
     image: nginxproxy/nginx-proxy:1.8
     restart: always
+    depends_on:
+      - join
+      - coderr 
+      - videoflix
     labels:
       com.github.nginx-proxy.nginx: "true"
       com.github.nginx-proxy.docker-gen: "true"
