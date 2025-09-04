@@ -15,4 +15,8 @@ echo "PostgreSQL is ready - continue..."
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
 
-exec gunicorn --chdir /app core.wsgi:application --workers 2 --threads 2 --bind 0.0.0.0:8001 --timeout 120
+exec gunicorn core.wsgi:application \
+    --bind 0.0.0.0:8001 \
+    --workers 2 \
+    --threads 2 \
+    --timeout 40

@@ -19,5 +19,5 @@ USER appuser
 
 COPY --chmod=0755 entrypoint.deploy.sh /app/entrypoint.sh
 
-EXPOSE 8000
+EXPOSE 8001
 CMD ["/app/entrypoint.sh"]

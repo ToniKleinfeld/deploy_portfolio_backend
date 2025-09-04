@@ -22,5 +22,5 @@ USER appuser
 COPY --chmod=0755 entrypoint.deploy.sh /app/entrypoint.sh
 COPY --chmod=0755 worker.deploy.sh /app/worker.sh
 
-EXPOSE 8000
+EXPOSE 8003
 CMD ["/app/entrypoint.sh"]
