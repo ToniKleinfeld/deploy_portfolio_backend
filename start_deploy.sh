@@ -98,22 +98,3 @@ sleep 10
 
 # Finally start reverse-proxy and acme-companion
 docker compose up -d reverse-proxy acme-companion
-
-# check reverse-proxy is healthy 
-MAX_TRIES=15
-for i in $(seq 1 $MAX_TRIES); do
-  cid=$(docker compose ps -q reverse-proxy 2>/dev/null || true)
-  [ -n "$cid" ] || { sleep 2; continue; }
-  status=$(docker inspect -f '{{.State.Health.Status}}' "$cid" 2>/dev/null || echo "none")
-  if [ "$status" = "healthy" ]; then
-    echo "reverse-proxy healthy"
-    break
-  fi
-  echo "waiting for reverse-proxy health... ($i/$MAX_TRIES)"
-  sleep 5
-done
-
-if [ "$status" != "healthy" ]; then
-  echo "reverse-proxy did not become healthy - showing recent logs:"
-  docker compose logs --tail 200 reverse-proxy
-fi
