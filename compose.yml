@@ -62,12 +62,13 @@ services:
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./nginx/custom.conf:/etc/nginx/conf.d/custom.conf:ro
+      # - ./nginx/custom.conf:/etc/nginx/conf.d/custom.conf:ro
     healthcheck:
-      test: ["CMD-SHELL", "nginx -t >/dev/null 2>&1 || exit 1; curl -fsS http://localhost:80/ >/dev/null 2>&1"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      test: ["CMD-SHELL", "nginx -t || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks: [proxy]
 
   acme-companion:
