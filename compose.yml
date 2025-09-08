@@ -47,8 +47,6 @@ services:
     image: nginxproxy/nginx-proxy:1.8
     container_name: reverse-proxy
     restart: always
-    depends_on:
-      - dhparam-generator
     labels:
       com.github.nginx-proxy.nginx: "true"
       com.github.nginx-proxy.docker-gen: "true"
