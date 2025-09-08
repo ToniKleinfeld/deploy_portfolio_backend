@@ -5,6 +5,8 @@ docker compose down
 
 docker system prune -a --volumes
 
+git pull
+
 bash start_deploy.sh
 
 wait 10
