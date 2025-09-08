@@ -66,11 +66,15 @@ services:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./nginx-security.conf:/etc/nginx/conf.d/security.conf:ro
       - ./nginx/custom.conf:/etc/nginx/conf.d/custom.conf:ro
+      - ./dhparam:/etc/nginx/dhparam:ro
     networks: [proxy, backend]
     read_only: true
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=50m
       - /var/cache/nginx:rw,noexec,nosuid,size=50m
+      - /etc/nginx/dhparam:rw,noexec,nosuid,size=10m 
+      - /var/run:rw,noexec,nosuid,size=10m           
+      - /var/log/nginx:rw,noexec,nosuid,size=50m 
     cap_drop:
       - ALL
     cap_add:
