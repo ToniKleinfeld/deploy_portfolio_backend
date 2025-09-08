@@ -42,24 +42,6 @@ volumes:
   videoflix_static:
 
 services:
-  dhparam-generator:
-    image: nginx:alpine
-    restart: "no"
-    command: >
-      sh -c "
-        if [ ! -f /dhparam/dhparam.pem ]; then
-          echo 'Generating DH parameters...'
-          openssl dhparam -out /dhparam/dhparam.pem 2048
-          chown 101:101 /dhparam/dhparam.pem
-          chmod 644 /dhparam/dhparam.pem
-        else
-          echo 'DH parameters already exist'
-        fi
-      "
-    volumes:
-      - dhparam:/dhparam
-    networks: []
-
   # ---- Reverse Proxy + Let's Encrypt ----
   reverse-proxy:
     image: nginxproxy/nginx-proxy:1.8
@@ -84,7 +66,6 @@ services:
       - ./nginx/nginx-security.conf:/etc/nginx/conf.d/security.conf:ro
       - ./nginx/custom.conf:/etc/nginx/conf.d/custom.conf:ro
       - ./nginx/vhost-security.conf:/etc/nginx/vhost.d/default:ro
-      - dhparam:/etc/nginx/dhparam:ro
     networks: [proxy, backend]
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=50m
@@ -172,6 +153,8 @@ services:
       context: ../Backend-Join
       dockerfile: Dockerfile.deploy
     restart: always
+    expose:
+      - "8001"
     environment:
       <<: *default-env
       DB_HOST: ${DB_HOST} 
@@ -206,6 +189,8 @@ services:
       context: ../backend.Coderr
       dockerfile: Dockerfile.deploy
     restart: always
+    expose:
+      - "8002"
     environment:
       <<: *default-env
       DB_HOST: ${DB_HOST} 
@@ -242,6 +227,8 @@ services:
       args:
         FFMPEG_THREADS: ${FFMPEG_THREADS}
     restart: always
+    expose:
+      - "8003"
     environment:
       <<: *default-env
       DB_HOST: ${DB_HOST} 

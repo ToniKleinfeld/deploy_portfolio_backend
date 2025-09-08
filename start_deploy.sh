@@ -80,11 +80,6 @@ done
 cd "$BASE_DIR"
 docker compose build --no-cache
 
-# Generate DH parameters if not already present
-docker compose up -d dhparam-generator
-
-sleep 10
-
 # Start services in order: first Postgres and Redis
 docker compose up -d postgres redis
 
@@ -96,11 +91,8 @@ until docker compose exec postgres pg_isready -U "${POSTGRES_USER}" -d "${POSTGR
 done
 echo "PostgreSQL is ready!"
 
-docker compose up -d reverse-proxy acme-companion
-
-
 docker compose up -d join coderr videoflix videoflix_worker
 
+sleep 15
 
-
-
+docker compose up -d reverse-proxy acme-companion
