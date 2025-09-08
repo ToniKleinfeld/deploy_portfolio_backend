@@ -99,7 +99,7 @@ echo "PostgreSQL is ready!"
 # Then start backend services
 docker compose up -d join coderr videoflix videoflix_worker
 
-sleep 10
+sleep 20
 
 # Finally start reverse-proxy and acme-companion
 docker compose up -d reverse-proxy acme-companion
