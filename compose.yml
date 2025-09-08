@@ -57,11 +57,13 @@ services:
       - "443:443"
     environment:
       TRUST_DOWNSTREAM_PROXY: "false"
+      ENABLE_IPV6: "true"
     volumes:
       - certs:/etc/nginx/certs
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx-security.conf:/etc/nginx/conf.d/security.conf:ro
     networks: [proxy, backend]
 
   acme-companion:
@@ -138,7 +140,7 @@ services:
       DB_HOST: ${DB_HOST} 
       DB_PORT: ${DB_PORT}
       DATABASE_URL: postgres://${JOIN_DB_USER}:${JOIN_DB_PASSWORD}@postgres:5432/${JOIN_DB}
-      ALLOWED_HOSTS: ${JOIN_HOST}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS_JOIN}
       DB: ${JOIN_DB}
       DB_USER: ${JOIN_DB_USER}
       DB_PASSWORD: ${JOIN_DB_PASSWORD}
@@ -173,7 +175,7 @@ services:
       DB_HOST: ${DB_HOST} 
       DB_PORT: ${DB_PORT}
       DATABASE_URL: postgres://${CODERR_DB_USER}:${CODERR_DB_PASSWORD}@postgres:5432/${CODERR_DB}
-      ALLOWED_HOSTS: ${CODERR_HOST}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS_CODERR}
       DB: ${CODERR_DB}
       DB_USER: ${CODERR_DB_USER}
       DB_PASSWORD: ${CODERR_DB_PASSWORD}
@@ -211,7 +213,7 @@ services:
       DB_PORT: ${DB_PORT}
       DATABASE_URL: postgres://${VIDEOFLIX_DB_USER}:${VIDEOFLIX_DB_PASSWORD}@postgres:5432/${VIDEOFLIX_DB}
       REDIS_URL: redis://redis:6379/${REDIS_DB}
-      ALLOWED_HOSTS: ${VIDEOFLIX_HOST}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS_VIDEOFLIX}
       FFMPEG_THREADS: ${FFMPEG_THREADS}
       DB: ${VIDEOFLIX_DB}
       DB_USER: ${VIDEOFLIX_DB_USER}
