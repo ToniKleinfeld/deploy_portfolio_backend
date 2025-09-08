@@ -32,6 +32,7 @@ check_and_install() {
 check_and_install envsubst gettext-base
 check_and_install python3 python3
 
+# Render initdb script from template if present
 INITDB_DIR="$BASE_DIR/initdb"
 TPL="$INITDB_DIR/00-create-dbs-and-users.sql.tpl"
 OUT="$INITDB_DIR/00-create-dbs-and-users.sql"
@@ -58,14 +59,13 @@ if [ -f "$TPL" ]; then
   chmod 0644 "$OUT" || true
   if [ "$(id -u)" -eq 0 ]; then
     chown -R 999:999 "$INITDB_DIR" || true
+    echo "[start_deploy] created file"
   else
     echo "[start_deploy] warning: run as root to chown initdb to UID 999 (postgres user) or ensure mount writable."
   fi
-
-  echo "[start_deploy] rendered file preview:"
-  sed -n '1,120p' "$OUT" || true
 fi
 
+# Copy deploy scripts and Dockerfiles
 declare -A MAP=( ["Backend-Join"]="Backend-Join" ["backend.Coderr"]="backend.Coderr" ["Videoflix"]="Videoflix" )
 
 for src in "${!MAP[@]}"; do
@@ -79,6 +79,11 @@ done
 
 cd "$BASE_DIR"
 docker compose build --no-cache
+
+# Generate DH parameters if not already present
+docker-compose up -d dhparam-generator
+
+sleep 10
 
 # Start services in order: first Postgres and Redis
 docker compose up -d postgres redis
