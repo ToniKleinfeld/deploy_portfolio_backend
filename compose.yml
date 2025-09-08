@@ -63,12 +63,10 @@ services:
   # ---- Reverse Proxy + Let's Encrypt ----
   reverse-proxy:
     image: nginxproxy/nginx-proxy:1.8
+    container_name: reverse-proxy
     restart: always
     depends_on:
       - dhparam-generator
-      - join
-      - coderr 
-      - videoflix
     labels:
       com.github.nginx-proxy.nginx: "true"
       com.github.nginx-proxy.docker-gen: "true"
@@ -106,6 +104,7 @@ services:
 
   acme-companion:
     image: nginxproxy/acme-companion
+    container_name: acme-companion
     restart: always
     depends_on: [reverse-proxy]
     environment:
