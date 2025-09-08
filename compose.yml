@@ -84,11 +84,10 @@ services:
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./nginx-security.conf:/etc/nginx/conf.d/security.conf:ro
+      - ./nginx/nginx-security.conf:/etc/nginx/conf.d/security.conf:ro
       - ./nginx/custom.conf:/etc/nginx/conf.d/custom.conf:ro
       - dhparam:/etc/nginx/dhparam:ro
     networks: [proxy, backend]
-    
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=50m
       - /var/cache/nginx:rw,noexec,nosuid,size=50m

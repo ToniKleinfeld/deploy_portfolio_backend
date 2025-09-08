@@ -81,7 +81,7 @@ cd "$BASE_DIR"
 docker compose build --no-cache
 
 # Generate DH parameters if not already present
-docker-compose up -d dhparam-generator
+docker compose up -d dhparam-generator
 
 sleep 10
 
