@@ -191,11 +191,11 @@ services:
       - postgres
     networks: [backend, proxy]
     labels:
-      - "com.github.nginx-proxy.enable=true"
-      - "VIRTUAL_HOST=${JOIN_HOST}"
-      - "VIRTUAL_PORT=8001"
-      - "LETSENCRYPT_HOST=${JOIN_HOST}"
-      - "LETSENCRYPT_EMAIL=${EMAIL_ADMIN}"
+      com.github.nginx-proxy.enable: "true"
+      VIRTUAL_HOST: "${JOIN_HOST}"
+      VIRTUAL_PORT: "8001"
+      LETSENCRYPT_HOST: "${JOIN_HOST}"
+      LETSENCRYPT_EMAIL: "${EMAIL_ADMIN}"
     deploy:
       resources:
         limits:
@@ -226,11 +226,11 @@ services:
       - postgres
     networks: [backend, proxy]
     labels:
-      - "com.github.nginx-proxy.enable=true"
-      - "VIRTUAL_HOST=${CODERR_HOST}"
-      - "VIRTUAL_PORT=8002"
-      - "LETSENCRYPT_HOST=${CODERR_HOST}"
-      - "LETSENCRYPT_EMAIL=${EMAIL_ADMIN}"
+      com.github.nginx-proxy.enable: "true"
+      VIRTUAL_HOST: "${CODERR_HOST}"
+      VIRTUAL_PORT: "8002"
+      LETSENCRYPT_HOST: "${CODERR_HOST}"
+      LETSENCRYPT_EMAIL: "${EMAIL_ADMIN}"
     deploy:
       resources:
         limits:
@@ -268,11 +268,11 @@ services:
       - redis
     networks: [backend, proxy]
     labels:
-      - "com.github.nginx-proxy.enable=true"
-      - "VIRTUAL_HOST=${VIDEOFLIX_HOST}"
-      - "VIRTUAL_PORT=8003"
-      - "LETSENCRYPT_HOST=${VIDEOFLIX_HOST}"
-      - "LETSENCRYPT_EMAIL=${EMAIL_ADMIN}"
+      com.github.nginx-proxy.enable: "true"
+      VIRTUAL_HOST: "${VIDEOFLIX_HOST}"
+      VIRTUAL_PORT: "8003"
+      LETSENCRYPT_HOST: "${VIDEOFLIX_HOST}"
+      LETSENCRYPT_EMAIL: "${EMAIL_ADMIN}"
     deploy:
       resources:
         limits:

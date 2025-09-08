@@ -1,13 +1,16 @@
 #!/bin/bash
 set -e
 
-docker compose exec reverse-proxy curl -H "Host: join.toni-kleinfeld.com" http://join:8001/ 2>/dev/null | head -1
-docker compose exec reverse-proxy curl -H "Host: coderr.toni-kleinfeld.com" http://coderr:8002/ 2>/dev/null | head -1  
-docker compose exec reverse-proxy curl -H "Host: videoflix.toni-kleinfeld.com" http://videoflix:8003/ 2>/dev/null | head -1
+docker compose logs -f reverse-proxy acme-companion
 
+docker exec $(docker-compose ps -q reverse-proxy) cat /etc/nginx/conf.d/default.conf | grep -A10 "server_name.*toni-kleinfeld"
 
-docker compose up -d reverse-proxy acme-companion
-sleep 30
+docker logs $(docker-compose ps -q acme-companion) | tail -20
 
+docker compose exec reverse-proxy curl -I http://join:8001/
+docker compose exec reverse-proxy curl -I http://coderr:8002/
+docker compose exec reverse-proxy curl -I http://videoflix:8003/
 
-docker compose exec reverse-proxy cat /etc/nginx/conf.d/default.conf | grep -A10 -B5 "toni-kleinfeld"
+docker compose exec reverse-proxy nslookup join
+docker compose exec reverse-proxy nslookup coderr
+docker compose exec reverse-proxy nslookup videoflix
