@@ -9,7 +9,7 @@ git pull
 
 bash start_deploy.sh
 
-wait 10
+sleep 10
 
 docker compose logs reverse-proxy acme-companion
 docker compose logs join coderr videoflix
