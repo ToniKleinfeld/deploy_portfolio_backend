@@ -65,8 +65,8 @@ services:
       - ./nginx/vhost-security.conf:/etc/nginx/vhost.d/default:ro
     networks: [proxy, backend]
     tmpfs:
-      - /tmp:rw,noexec,nosuid,size=50m
-      - /var/cache/nginx:rw,noexec,nosuid,size=50m
+      - /tmp:rw,noexec,nosuid,size=200m
+      - /var/cache/nginx:rw,noexec,nosuid,size=1g
       - /var/run:rw,noexec,nosuid,size=10m
     cap_drop:
       - ALL
