@@ -33,11 +33,9 @@ volumes:
   vhost:
   html:
   certs:
-  join_media:
+  shared_media:
   join_static:
-  coderr_media:
   coderr_static:
-  videoflix_media:
   videoflix_static:
 
 services:
@@ -64,9 +62,7 @@ services:
       - ./nginx/nginx-security.conf:/etc/nginx/conf.d/security.conf:ro
       - ./nginx/custom.conf:/etc/nginx/conf.d/custom.conf:ro
       - ./nginx/vhost-security.conf:/etc/nginx/vhost.d/default:ro
-      - videoflix_media:/usr/share/nginx/html/videoflix/media:ro  
-      - join_media:/usr/share/nginx/html/join/media:ro
-      - coderr_media:/usr/share/nginx/html/coderr/media:ro
+      - shared_media:/usr/share/nginx/html/media:ro
     networks: [proxy, backend]
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=200m
@@ -175,7 +171,7 @@ services:
       LETSENCRYPT_HOST: "${JOIN_HOST}"
       LETSENCRYPT_EMAIL: "${EMAIL_ADMIN}"
     volumes:
-      - join_media:/app/media
+      - shared_media:/app/media
       - join_static:/app/static
     depends_on:
       - postgres
@@ -210,7 +206,7 @@ services:
       LETSENCRYPT_HOST: "${CODERR_HOST}"
       LETSENCRYPT_EMAIL: "${EMAIL_ADMIN}"
     volumes:
-      - coderr_media:/app/media
+      - shared_media:/app/media
       - coderr_static:/app/static
     depends_on:
       - postgres
@@ -251,7 +247,7 @@ services:
       LETSENCRYPT_HOST: "${VIDEOFLIX_HOST}"
       LETSENCRYPT_EMAIL: "${EMAIL_ADMIN}"
     volumes:
-      - videoflix_media:/app/media
+      - shared_media:/app/media
       - videoflix_static:/app/static
     depends_on:
       - postgres
@@ -288,7 +284,7 @@ services:
       SITE_URL: ${SITE_URL}
     command: ["/app/worker.sh"]
     volumes:
-      - videoflix_media:/app/media
+      - shared_media:/app/media
     depends_on:
       - redis
       - postgres
