@@ -93,6 +93,6 @@ echo "PostgreSQL is ready!"
 
 docker compose up -d join coderr videoflix videoflix_worker
 
-sleep 15
+sleep 30
 
 docker compose up -d reverse-proxy acme-companion
