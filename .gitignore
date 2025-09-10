@@ -15,3 +15,5 @@ backend.Coderr/*
 !backend.Coderr/entrypoint.deploy.sh
 
 00-create-dbs-and-users.sql
+
+log.txt

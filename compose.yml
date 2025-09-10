@@ -59,8 +59,7 @@ services:
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./nginx/nginx-security.conf:/etc/nginx/conf.d/security.conf:ro
-      - ./nginx/custom.conf:/etc/nginx/conf.d/custom.conf:ro
+      - ./nginx/00-custom-nginx-security.conf:/etc/nginx/conf.d/00-custom-nginx-security.conf:ro
       - ./nginx/vhost-security.conf:/etc/nginx/vhost.d/default:ro
       - shared_media:/usr/share/nginx/html/media:ro
     networks: [proxy, backend]
