@@ -64,6 +64,9 @@ services:
       - ./nginx/nginx-security.conf:/etc/nginx/conf.d/security.conf:ro
       - ./nginx/custom.conf:/etc/nginx/conf.d/custom.conf:ro
       - ./nginx/vhost-security.conf:/etc/nginx/vhost.d/default:ro
+      - videoflix_media:/usr/share/nginx/html/videoflix/media:ro  
+      - join_media:/usr/share/nginx/html/join/media:ro
+      - coderr_media:/usr/share/nginx/html/coderr/media:ro
     networks: [proxy, backend]
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=200m
