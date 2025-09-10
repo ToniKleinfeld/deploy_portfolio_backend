@@ -53,7 +53,7 @@ services:
     environment:
       TRUST_DOWNSTREAM_PROXY: "false"
       ENABLE_IPV6: "true"
-      DHPARAM_GENERATION: "false"
+      DHPARAM_SKIP: "true"
     volumes:
       - certs:/etc/nginx/certs
       - vhost:/etc/nginx/vhost.d
